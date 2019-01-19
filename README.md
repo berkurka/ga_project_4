@@ -5,6 +5,11 @@
 - Thomas Ludlow | <u>[LinkedIn](https://www.linkedin.com/in/thomas-w-ludlow-jr-4568a1b)</u> | <u>[Email](tludlow@gmail.com)</u>
 - Brittany Allen | <u>[LinkedIn](https://www.linkedin.com/in/brittlallen)</u> | <u>[Email](thebrittallen@gmail.com)</u>
 
+## Presentation Slides
+- https://docs.google.com/presentation/d/1a9jGkPlWrMeTOaTl-t5zsYTpBsu5WPCP6Zb0eF-3wws/edit?usp=sharing
+- NLT Project_ Estimating Neighborhood Affluence with Yelp Data — Bernard K, Thomas L, Brittany A.pdf
+
+
 ## Notebooks
 - <u>[01 Data Collection](link)</u>
 - <u>[02 Data Cleaning & Exploration](link)</u>
@@ -29,13 +34,24 @@ Counting the number of business in each price range ($, $$, $$$, $$$$) in Yelp´
  - $$$$ cluster: Highest activity in $$$ and $$$$. High activity in $$.
 
  
-We developed a Python Class that given a list of NYC Zipcodes or neighborhood names will acess Acess the Api gather data for these neighborhoods and use a knn model to predict wich cluster it belongs. The Class also has plot functions to compare the given Zipcodes with the 4 static clusters and there is also a option to print results in NYC map.
+We developed a Python Class that given a list of NYC Zipcodes or neighborhood names will access the API gather data for these neighborhoods and use a KNN model to predict wich cluster it belongs. The Class also has plot functions to compare the given Zipcodes with the 4 static clusters and there is also a option to print results in NYC map.
 
 ### The Data
 ##### Data Dictionary
-tk|tk|tk| 
 
-- Include links to relevant notebooks
+|Feature|Type|Dataset|Description|
+|---|---|---|---|
+|**zip**|*object*|KMeans Clustering|String for each of 278 ZIP codes across New York City boroughs|
+|**location**|*object*|KNN Classifier|String of ZIP code or text location query parameter being classified with KNN model|
+|**pr_1s**|*float*|KMeans Clustering, KNN Classifier|Floating point standardized ("s") value for number of \$ priced ("pr_1") establishments in top 100 best match for search location|
+|**pr_2ws**|*float*|KMeans Clustering, KNN Classifier|Floating point standardized ("s") value for number of \$\$ priced ("pr_2") establishments in top 100 best match for search location, weighted ("w") by price level|
+|**pr_3ws**|*float*|KMeans Clustering, KNN Classifier|Floating point standardized ("s") value for number of \$\$\$ priced ("pr_3") establishments in top 100 best match for search location, weighted ("w") by price level|
+|**pr_4ws**|*float*|KMeans Clustering, KNN Classifier|Floating point standardized ("s") value for number of \$\$\$\$ priced ("pr_4") establishments in top 100 best match for search location, weighted ("w") by price level|
+|**pr_totws**|*float*|KMeans Clustering, KNN Classifier|Floating point standardized ("s") value for total weighted price counts ("tot", "w") for top 100 best match for search location|
+
+- [Notebook 02 - Yelp Fusion API]
+- [Notebook 03 - IRS Data]
+- [Notebook 04 - API Pull for Training Data]
 - Our data was acquired via Yelp's Fusion API `from yelpapi import YelpAPI`.We set our Yelp Fusion API Key and established an API connection. From there we stored the data we gathered into a `Pandas` DataFrame.
 - The search criterias included all Yelp´s categories (shops, restaurants ..), filtered by Yelp´s "best mach" option.
 - We gathered top 100 business prices and reviews from 278 NYC zipcodes. 
@@ -44,18 +60,58 @@ tk|tk|tk|
 
 
 ### Analysis
-- include links to relevant notebooks]
+- [Notebook 05 - Yelp Cluster Gridsearch]
+- [Notebook 06 - K-Means Modeling]
 - intro sentence about our software requirements (e.g., `Pandas`, `Scikit-learn`)
 - Used a Grid search through 3 different clustering models (K Means, Agglomerative and Hierarchical) and changing hiper parameters (n_clusters, inits, linkage_method, affinity...).
 - Analizing Silhouette Score, Inertia Score and number of observations in each cluster, K Means yielded best results.
 - Using the Elbow method n_clusters = 4 was found to be a good balanced choice. 
 - Final K means model used the default parameters except for init='random' and random_state=42.
+- Using these models, we developed a class for use by our client: yelpaffluence_nyc.py class YelpAffluence_NYC
+ - Methods for YelpAffluence_NYC object include tools to fit the model to NYC data, query Yelp API for list of locations, plot results in a bar graph by price level and plot results on NYC map.
   
 
 ### Conclusion
-State our findings and introduce recommendations. tk
+After optimizing our K-Means model, we deployed the K-Nearest Neighbors Classifier (n=15) to assign a label to our queried locations.  We found that the K-Means model sorted all NYC ZIP codes into 4 separate groups, which we have labeled "\$", "\$\$", "\$\$\$", and "\$\$\$\$" to match Yelp's existing pricing scale.
+
+We noted that locations in each group shared distinct characteristics, and that our class designation presents a meaningful economic description for a particular location.
+
+- \$ - Red
+ - Limited economic activity across all price ranges (\$ - \$\$\$\$)
+ 
+- \$\$ - Orange
+ - Moderate economic activity in the \$ and \$\$ price levels
+ - Limited activity in the \$\$\$ and \$\$\$\$ price categories
+ 
+- \$\$\$ - Green
+ - Highest activity in \$\$ price level
+ - Increased activity in \$\$\$ and \$\$\$\$, but not highest
+ 
+- \$\$\$\$ - Blue
+ - Highest activity of all locations in \$\$\$ and \$\$\$\$ price establishments
+ - High activity in \$\$ category
+ 
+These trends are confirmed with inspection of the mean distribution of top-100 establishment price levels for each Yelp Affluence level.
 
 ##### Recommendations
-- tk
-- tk
-- tk
+- Feed other models with cluster results
+ - This information can be useful as an economic rating variable in a predictive model
+
+- Pay to use the Yelp Fusion VIP API
+ - Will allow for commercial-scale queries
+
+- Beware of ZIP query results
+ - Yelp returned out of state results for some NYC-based zipcodes
+ - e.g. 10015 returned results in Tucson, AZ
+ 
+- Gathering and testing more data
+ - Beyond the top 100, best match results
+
+- Expanding class functionality
+ - Enable collection of new training data
+ - Automate model optimization
+
+- Scaling the model
+ - Train on other large metropolitan areas and check consistency of results
+
+
